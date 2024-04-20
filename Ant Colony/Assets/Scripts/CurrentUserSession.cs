@@ -1,35 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using Npgsql;
 
 public class CurrentUserSession : MonoBehaviour
 {
-    [SerializeField] private Text userLogintext;
+    [SerializeField] private Text userLoginText;
 
-    public static Action<UserData> OnDisplayUser;
-
-    private void Start()
+    public void UpdateUserLogin(string login)
     {
-        OnDisplayUser += DisplayUser;
-    }
-
-    private void OnEnable()
-    {
-        OnDisplayUser += DisplayUser;
-    }
-
-    private void OnDisable()
-    {
-        OnDisplayUser -= DisplayUser;
-    }
-
-    private void OnDestroy()
-    {
-        OnDisplayUser -= DisplayUser;
-    }
-
-    private void DisplayUser(UserData userData)
-    {
-        userLogintext.text = userData.Login;
+        userLoginText.text = login;
     }
 }

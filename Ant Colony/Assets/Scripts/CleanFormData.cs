@@ -1,5 +1,5 @@
-using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CleanFormData : MonoBehaviour
 {
@@ -8,14 +8,14 @@ public class CleanFormData : MonoBehaviour
 
     private void OnDisable()
     {
-        for (int i = 0; i < inputFields.Length; i++) 
+        foreach (var inputField in inputFields)
         {
-            inputFields[i].text = null;
+            inputField.text = null;
         }
 
-        for (int i = 0; i < texts.Length; i++)
+        foreach (var text in texts)
         {
-            texts[i].text = null;
+            text.text = null;
         }
     }
 }

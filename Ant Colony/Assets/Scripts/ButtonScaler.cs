@@ -8,16 +8,17 @@ public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     private void OnDisable()
     {
-        gameObject.transform.localScale = new Vector3(exitScale, exitScale, exitScale);
+        transform.localScale = new Vector3(exitScale, exitScale, exitScale);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        gameObject.transform.localScale = new Vector3 (enterScale, enterScale, enterScale);
+        transform.localScale = new Vector3(enterScale, enterScale, enterScale);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        gameObject.transform.localScale = new Vector3(exitScale, exitScale, exitScale);
+        transform.localScale = new Vector3(exitScale, exitScale, exitScale);
     }
 }
+
