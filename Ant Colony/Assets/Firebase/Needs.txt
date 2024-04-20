@@ -1,0 +1,23 @@
+//1
+Login - $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={AUTH_KEY}"
+Reg - $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={AUTH_KEY}"
+
+//2
+string data = "{\"email\":\"" + email + "\",\"password\":\"" + pass + "\",\"returnSecureToken\":true}";
+
+//3
+public static void FindUserByEmail(string email, Action<RequestException, ResponseHelper> GetInfoCallback)
+{
+    RestClient.Get($"{DATABASE}.json?orderBy=%22Email%22&equalTo=%22{email}%22", GetInfoCallback);
+}
+
+//4
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+      "users": {
+				".indexOn": ["Login", "Email"]
+		}
+  }
+}
