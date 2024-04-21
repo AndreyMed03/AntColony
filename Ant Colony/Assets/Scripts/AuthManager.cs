@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using Npgsql;
+using System.Security.Cryptography;
+using System.Text;
 
 public class AuthManager : MonoBehaviour
 {
@@ -19,70 +21,69 @@ public class AuthManager : MonoBehaviour
 
     private static readonly string connString = "Host=localhost;Username=Medvednik_AS_21;Password=16122003;Database=GameDataBase";
 
-    // Добавляем события для входа и регистрации
     public static Action OnUserSignIn;
     public static Action OnUserSignUp;
 
     private void Start()
     {
         currentUserSession = FindObjectOfType<CurrentUserSession>();
-        // Подписываемся на события в начале
         OnUserSignUp += SignUp;
         OnUserSignIn += SignIn;
     }
 
     public void SignIn()
-    {
-        string email = signInEmail.text;
-        string password = signInPassword.text;
+{
+    string signInInput = signInEmail.text; // Теперь мы будем использовать одно поле ввода для ввода email или username
+    string password = signInPassword.text;
 
-        SignIn(email, password);
-    }
+    string hashedPassword = HashPassword(password);
 
-    private void SignIn(string email, string password)
+    SignIn(signInInput, hashedPassword);
+}
+
+private void SignIn(string signInInput, string hashedPassword)
+{
+    using (var conn = new NpgsqlConnection(connString))
     {
-        using (var conn = new NpgsqlConnection(connString))
+        conn.Open();
+        using (var cmd = new NpgsqlCommand())
         {
-            conn.Open();
-            using (var cmd = new NpgsqlCommand())
+            cmd.Connection = conn;
+            // Используем оператор OR для проверки email и username
+            cmd.CommandText = "SELECT * FROM \"User\" WHERE Email = @input OR Username = @input";
+            cmd.Parameters.AddWithValue("input", signInInput);
+
+            using (var reader = cmd.ExecuteReader())
             {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT * FROM \"User\" WHERE Email = @email";
-                cmd.Parameters.AddWithValue("email", email);
-
-                using (var reader = cmd.ExecuteReader())
+                if (reader.Read())
                 {
-                    if (reader.Read())
+                    string storedHashedPassword = reader.GetString(reader.GetOrdinal("Hashed_Password"));
+                    if (hashedPassword == storedHashedPassword)
                     {
-                        string storedPassword = reader.GetString(reader.GetOrdinal("Password"));
-                        if (password == storedPassword)
-                        {
-                            signInMessageText.text = "Sign in successful!";
-                            signInMessageText.color = Color.green;
+                        signInMessageText.text = "Sign in successful!";
+                        signInMessageText.color = Color.green;
 
-                            // Активируем Menu Form и деактивируем Login Form при успешном входе
-                            menuForm.SetActive(true);
-                            loginForm.SetActive(false);
+                        menuForm.SetActive(true);
+                        loginForm.SetActive(false);
 
-                            // Обновляем текст имени пользователя
-                            string userLogin = reader.GetString(reader.GetOrdinal("Username"));
-                            currentUserSession.UpdateUserLogin(userLogin);
-                        }
-                        else
-                        {
-                            signInMessageText.text = "Incorrect password!";
-                            signInMessageText.color = Color.red;
-                        }
+                        string userLogin = reader.GetString(reader.GetOrdinal("Username"));
+                        currentUserSession.UpdateUserLogin(userLogin);
                     }
                     else
                     {
-                        signInMessageText.text = "User not found!";
+                        signInMessageText.text = "Incorrect password!";
                         signInMessageText.color = Color.red;
                     }
+                }
+                else
+                {
+                    signInMessageText.text = "User not found!";
+                    signInMessageText.color = Color.red;
                 }
             }
         }
     }
+}
 
     public void SignUp()
     {
@@ -93,7 +94,9 @@ public class AuthManager : MonoBehaviour
 
         if (password == confirmPassword)
         {
-            UserData userData = new UserData(login, email, password);
+            string hashedPassword = HashPassword(password);
+
+            UserData userData = new UserData(login, email, hashedPassword);
             SignUp(userData);
         }
         else
@@ -111,7 +114,7 @@ public class AuthManager : MonoBehaviour
             using (var cmd = new NpgsqlCommand())
             {
                 cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO \"User\" (Username, Email, Password) VALUES (@login, @email, @password)";
+                cmd.CommandText = "INSERT INTO \"User\" (Username, Email, Hashed_Password) VALUES (@login, @email, @password)";
                 cmd.Parameters.AddWithValue("login", userData.Login);
                 cmd.Parameters.AddWithValue("email", userData.Email);
                 cmd.Parameters.AddWithValue("password", userData.Password);
@@ -120,6 +123,20 @@ public class AuthManager : MonoBehaviour
                 signUpMessageText.text = "Sign up successful!";
                 signUpMessageText.color = Color.green;
             }
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using (SHA256 sha256Hash = SHA256.Create())
+        {
+            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                builder.Append(bytes[i].ToString("x2"));
+            }
+            return builder.ToString();
         }
     }
 }
