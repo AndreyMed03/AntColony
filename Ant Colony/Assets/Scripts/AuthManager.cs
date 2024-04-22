@@ -4,9 +4,13 @@ using System;
 using Npgsql;
 using System.Security.Cryptography;
 using System.Text;
+using System.IO;
 
 public class AuthManager : MonoBehaviour
 {
+    private static string configFilePath = "config"; // Путь к файлу конфигурации в папке Resources
+    private DatabaseConfig databaseConfig; // Данные конфигурации базы данных
+
     public GameObject menuForm;
     public GameObject loginForm;
     public InputField signInEmail;
@@ -19,71 +23,86 @@ public class AuthManager : MonoBehaviour
     public Text signInMessageText;
     private CurrentUserSession currentUserSession;
 
-    private static readonly string connString = "Host=localhost;Username=Medvednik_AS_21;Password=16122003;Database=GameDataBase";
-
     public static Action OnUserSignIn;
     public static Action OnUserSignUp;
 
     private void Start()
     {
+        // Загружаем данные конфигурации из файла
+        LoadConfig();
+
         currentUserSession = FindObjectOfType<CurrentUserSession>();
         OnUserSignUp += SignUp;
         OnUserSignIn += SignIn;
     }
 
-    public void SignIn()
-{
-    string signInInput = signInEmail.text; // Теперь мы будем использовать одно поле ввода для ввода email или username
-    string password = signInPassword.text;
-
-    string hashedPassword = HashPassword(password);
-
-    SignIn(signInInput, hashedPassword);
-}
-
-private void SignIn(string signInInput, string hashedPassword)
-{
-    using (var conn = new NpgsqlConnection(connString))
+    private void LoadConfig()
     {
-        conn.Open();
-        using (var cmd = new NpgsqlCommand())
+        // Загружаем содержимое файла конфигурации
+        TextAsset configFile = Resources.Load<TextAsset>(configFilePath);
+        if (configFile != null)
         {
-            cmd.Connection = conn;
-            // Используем оператор OR для проверки email и username
-            cmd.CommandText = "SELECT * FROM \"User\" WHERE Email = @input OR Username = @input";
-            cmd.Parameters.AddWithValue("input", signInInput);
+            // Читаем данные конфигурации
+            databaseConfig = JsonUtility.FromJson<DatabaseConfig>(configFile.text);
+        }
+        else
+        {
+            Debug.LogError("Config file not found!");
+        }
+    }
 
-            using (var reader = cmd.ExecuteReader())
+    public void SignIn()
+    {
+        string signInInput = signInEmail.text;
+        string password = signInPassword.text;
+
+        string hashedPassword = HashPassword(password);
+
+        SignIn(signInInput, hashedPassword);
+    }
+
+    private void SignIn(string signInInput, string hashedPassword)
+    {
+        using (var conn = new NpgsqlConnection(GetConnectionString()))
+        {
+            conn.Open();
+            using (var cmd = new NpgsqlCommand())
             {
-                if (reader.Read())
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT * FROM \"User\" WHERE Email = @input OR Username = @input";
+                cmd.Parameters.AddWithValue("input", signInInput);
+
+                using (var reader = cmd.ExecuteReader())
                 {
-                    string storedHashedPassword = reader.GetString(reader.GetOrdinal("Hashed_Password"));
-                    if (hashedPassword == storedHashedPassword)
+                    if (reader.Read())
                     {
-                        signInMessageText.text = "Sign in successful!";
-                        signInMessageText.color = Color.green;
+                        string storedHashedPassword = reader.GetString(reader.GetOrdinal("Hashed_Password"));
+                        if (hashedPassword == storedHashedPassword)
+                        {
+                            signInMessageText.text = "Sign in successful!";
+                            signInMessageText.color = Color.green;
 
-                        menuForm.SetActive(true);
-                        loginForm.SetActive(false);
+                            menuForm.SetActive(true);
+                            loginForm.SetActive(false);
 
-                        string userLogin = reader.GetString(reader.GetOrdinal("Username"));
-                        currentUserSession.UpdateUserLogin(userLogin);
+                            string userLogin = reader.GetString(reader.GetOrdinal("Username"));
+                            currentUserSession.UpdateUserLogin(userLogin);
+                        }
+                        else
+                        {
+                            signInMessageText.text = "Incorrect password!";
+                            signInMessageText.color = Color.red;
+                        }
                     }
                     else
                     {
-                        signInMessageText.text = "Incorrect password!";
+                        signInMessageText.text = "User not found!";
                         signInMessageText.color = Color.red;
                     }
-                }
-                else
-                {
-                    signInMessageText.text = "User not found!";
-                    signInMessageText.color = Color.red;
                 }
             }
         }
     }
-}
 
     public void SignUp()
     {
@@ -108,7 +127,7 @@ private void SignIn(string signInInput, string hashedPassword)
 
     private void SignUp(UserData userData)
     {
-        using (var conn = new NpgsqlConnection(connString))
+        using (var conn = new NpgsqlConnection(GetConnectionString()))
         {
             conn.Open();
             using (var cmd = new NpgsqlCommand())
@@ -126,6 +145,11 @@ private void SignIn(string signInInput, string hashedPassword)
         }
     }
 
+    private string GetConnectionString()
+    {
+        return $"Host={databaseConfig.Host};Username={databaseConfig.Username};Password={databaseConfig.Password};Database={databaseConfig.Database}";
+    }
+
     private string HashPassword(string password)
     {
         using (SHA256 sha256Hash = SHA256.Create())
@@ -139,5 +163,12 @@ private void SignIn(string signInInput, string hashedPassword)
             return builder.ToString();
         }
     }
-}
 
+    private class DatabaseConfig
+    {
+        public string Host;
+        public string Username;
+        public string Password;
+        public string Database;
+    }
+}
