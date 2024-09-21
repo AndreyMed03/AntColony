@@ -9,7 +9,7 @@ public class AuthButton : MonoBehaviour, IPointerClickHandler
     private enum ButtonType
     {
         None = 0,
-        SignIn = 1, // различные значения для SignIn и SignUp
+        SignIn = 1,
         SignUp = 2
     }
 

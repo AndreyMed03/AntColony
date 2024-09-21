@@ -5,11 +5,12 @@ using Npgsql;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using System.Text.RegularExpressions;
 
 public class AuthManager : MonoBehaviour
 {
-    private static string configFilePath = "config"; // Путь к файлу конфигурации в папке Resources
-    private DatabaseConfig databaseConfig; // Данные конфигурации базы данных
+    private static string configFilePath = "config";
+    private DatabaseConfig databaseConfig;
 
     public GameObject menuForm;
     public GameObject loginForm;
@@ -28,7 +29,6 @@ public class AuthManager : MonoBehaviour
 
     private void Start()
     {
-        // Загружаем данные конфигурации из файла
         LoadConfig();
 
         currentUserSession = FindObjectOfType<CurrentUserSession>();
@@ -38,11 +38,9 @@ public class AuthManager : MonoBehaviour
 
     private void LoadConfig()
     {
-        // Загружаем содержимое файла конфигурации
         TextAsset configFile = Resources.Load<TextAsset>(configFilePath);
         if (configFile != null)
         {
-            // Читаем данные конфигурации
             databaseConfig = JsonUtility.FromJson<DatabaseConfig>(configFile.text);
         }
         else
@@ -111,17 +109,28 @@ public class AuthManager : MonoBehaviour
         string password = signUpPassword.text;
         string confirmPassword = signUpConfirmPassword.text;
 
-        if (password == confirmPassword)
+        if (password != confirmPassword)
+        {
+            signUpMessageText.text = "Passwords do not match!";
+            signUpMessageText.color = Color.red;
+            
+        }
+        else if (email.Length == 0 || login.Length == 0 || password.Length == 0)
+        {
+            signUpMessageText.text = "Введите все данные";
+            signUpMessageText.color = Color.red;
+        }
+        else if (!Regex.IsMatch(email, @"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$"))
+        {
+            signUpMessageText.text = "введите рабочую пошту!";
+            signUpMessageText.color = Color.red;
+        }
+        else
         {
             string hashedPassword = HashPassword(password);
 
             UserData userData = new UserData(login, email, hashedPassword);
             SignUp(userData);
-        }
-        else
-        {
-            signUpMessageText.text = "Passwords do not match!";
-            signUpMessageText.color = Color.red;
         }
     }
 
