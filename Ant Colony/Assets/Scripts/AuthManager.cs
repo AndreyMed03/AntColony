@@ -9,9 +9,6 @@ using System.Text.RegularExpressions;
 
 public class AuthManager : MonoBehaviour
 {
-    private static string configFilePath = "config";
-    private DatabaseConfig databaseConfig;
-
     public GameObject menuForm;
     public GameObject loginForm;
     public InputField signInEmail;
@@ -27,26 +24,16 @@ public class AuthManager : MonoBehaviour
     public static Action OnUserSignIn;
     public static Action OnUserSignUp;
 
+    private ApiClient apiClient;
+
     private void Start()
     {
-        LoadConfig();
-
         currentUserSession = FindObjectOfType<CurrentUserSession>();
+        apiClient = FindObjectOfType<ApiClient>();
+
+        // Подписка на события для регистрации и входа
         OnUserSignUp += SignUp;
         OnUserSignIn += SignIn;
-    }
-
-    private void LoadConfig()
-    {
-        TextAsset configFile = Resources.Load<TextAsset>(configFilePath);
-        if (configFile != null)
-        {
-            databaseConfig = JsonUtility.FromJson<DatabaseConfig>(configFile.text);
-        }
-        else
-        {
-            Debug.LogError("Config file not found!");
-        }
     }
 
     public void SignIn()
@@ -54,51 +41,37 @@ public class AuthManager : MonoBehaviour
         string signInInput = signInEmail.text;
         string password = signInPassword.text;
 
-        string hashedPassword = HashPassword(password);
+        UserLogin userLogin = new UserLogin { Username = signInInput, Password = password };
+        string jsonData = JsonUtility.ToJson(userLogin);
 
-        SignIn(signInInput, hashedPassword);
+        StartCoroutine(apiClient.PostRequest("login", jsonData, HandleSignInResponse));
     }
 
-    private void SignIn(string signInInput, string hashedPassword)
+    private void HandleSignInResponse(string response)
     {
-        using (var conn = new NpgsqlConnection(GetConnectionString()))
+        if (!string.IsNullOrEmpty(response))
         {
-            conn.Open();
-            using (var cmd = new NpgsqlCommand())
+            AuthResponse authResponse = JsonUtility.FromJson<AuthResponse>(response);
+            if (authResponse.Success)
             {
-                cmd.Connection = conn;
-                cmd.CommandText = "SELECT * FROM \"User\" WHERE Email = @input OR Username = @input";
-                cmd.Parameters.AddWithValue("input", signInInput);
+                signInMessageText.text = "Sign in successful!";
+                signInMessageText.color = Color.green;
 
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        string storedHashedPassword = reader.GetString(reader.GetOrdinal("Hashed_Password"));
-                        if (hashedPassword == storedHashedPassword)
-                        {
-                            signInMessageText.text = "Sign in successful!";
-                            signInMessageText.color = Color.green;
+                menuForm.SetActive(true);
+                loginForm.SetActive(false);
 
-                            menuForm.SetActive(true);
-                            loginForm.SetActive(false);
-
-                            string userLogin = reader.GetString(reader.GetOrdinal("Username"));
-                            currentUserSession.UpdateUserLogin(userLogin);
-                        }
-                        else
-                        {
-                            signInMessageText.text = "Incorrect password!";
-                            signInMessageText.color = Color.red;
-                        }
-                    }
-                    else
-                    {
-                        signInMessageText.text = "User not found!";
-                        signInMessageText.color = Color.red;
-                    }
-                }
+                currentUserSession.UpdateUserLogin(authResponse.Username);
             }
+            else
+            {
+                signInMessageText.text = authResponse.Message;
+                signInMessageText.color = Color.red;
+            }
+        }
+        else
+        {
+            signInMessageText.text = "Error connecting to server!";
+            signInMessageText.color = Color.red;
         }
     }
 
@@ -113,9 +86,8 @@ public class AuthManager : MonoBehaviour
         {
             signUpMessageText.text = "Passwords do not match!";
             signUpMessageText.color = Color.red;
-            
         }
-        else if (email.Length == 0 || login.Length == 0 || password.Length == 0)
+        else if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
         {
             signUpMessageText.text = "Введите все данные";
             signUpMessageText.color = Color.red;
@@ -127,57 +99,49 @@ public class AuthManager : MonoBehaviour
         }
         else
         {
-            string hashedPassword = HashPassword(password);
+            UserRegister userRegister = new UserRegister { Username = login, Email = email, Password = password };
+            string jsonData = JsonUtility.ToJson(userRegister);
 
-            UserData userData = new UserData(login, email, hashedPassword);
-            SignUp(userData);
+            StartCoroutine(apiClient.PostRequest("register", jsonData, HandleSignUpResponse));
         }
     }
 
-    private void SignUp(UserData userData)
+    private void HandleSignUpResponse(string response)
     {
-        using (var conn = new NpgsqlConnection(GetConnectionString()))
+        if (!string.IsNullOrEmpty(response))
         {
-            conn.Open();
-            using (var cmd = new NpgsqlCommand())
-            {
-                cmd.Connection = conn;
-                cmd.CommandText = "INSERT INTO \"User\" (Username, Email, Hashed_Password) VALUES (@login, @email, @password)";
-                cmd.Parameters.AddWithValue("login", userData.Login);
-                cmd.Parameters.AddWithValue("email", userData.Email);
-                cmd.Parameters.AddWithValue("password", userData.Password);
-                cmd.ExecuteNonQuery();
-
-                signUpMessageText.text = "Sign up successful!";
-                signUpMessageText.color = Color.green;
-            }
+            AuthResponse authResponse = JsonUtility.FromJson<AuthResponse>(response);
+            signUpMessageText.text = authResponse.Message;
+            signUpMessageText.color = authResponse.Success ? Color.green : Color.red;
         }
-    }
-
-    private string GetConnectionString()
-    {
-        return $"Host={databaseConfig.Host};Username={databaseConfig.Username};Password={databaseConfig.Password};Database={databaseConfig.Database}";
-    }
-
-    private string HashPassword(string password)
-    {
-        using (SHA256 sha256Hash = SHA256.Create())
+        else
         {
-            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                builder.Append(bytes[i].ToString("x2"));
-            }
-            return builder.ToString();
+            signUpMessageText.text = "Error connecting to server!";
+            signUpMessageText.color = Color.red;
         }
     }
 
-    private class DatabaseConfig
+    // Внутренние классы для обработки данных
+    [System.Serializable]
+    private class UserLogin
     {
-        public string Host;
         public string Username;
         public string Password;
-        public string Database;
+    }
+
+    [System.Serializable]
+    private class UserRegister
+    {
+        public string Username;
+        public string Email;
+        public string Password;
+    }
+
+    [System.Serializable]
+    private class AuthResponse
+    {
+        public string Message;
+        public bool Success;
+        public string Username;
     }
 }
