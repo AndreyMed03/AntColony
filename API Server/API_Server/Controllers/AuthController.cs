@@ -21,20 +21,16 @@ namespace API_Server.Controllers
             _context = context;
         }
 
-        // Регистрация
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserRegister userRegisterDto)
         {
-            // Проверка на существующего пользователя с таким же Email или Username
-            if (_context.Users.Any(u => u.Email == userRegisterDto.Email || u.Username == userRegisterDto.Username))
+            if (_context.Users.Any(u => u.Email.ToLower() == userRegisterDto.Email.ToLower() || u.Username.ToLower() == userRegisterDto.Username.ToLower()))
             {
-                return BadRequest(new AuthResponse { Message = "Пользователь уже существует", Success = false });
+                return BadRequest(new AuthResponse { Message = "User already exists!", Success = false });
             }
 
-            // Хеширование пароля
             var hashedPassword = HashPassword(userRegisterDto.Password);
 
-            // Создание нового пользователя
             var user = new User
             {
                 Username = userRegisterDto.Username,
@@ -45,32 +41,28 @@ namespace API_Server.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok(new AuthResponse { Message = "Регистрация успешна", Success = true, Username = user.Username });
+            return Ok(new AuthResponse { Message = "Account created!", Success = true, Username = user.Username });
         }
 
-        // Аутентификация
         [HttpPost("login")]
         public IActionResult Login([FromBody] UserLogin userLoginDto)
         {
-            // Поиск пользователя по Email или Username
             var user = _context.Users.FirstOrDefault(u => u.Username == userLoginDto.Username || u.Email == userLoginDto.Username);
 
             if (user == null)
             {
-                return BadRequest(new AuthResponse { Message = "Пользователь не найден", Success = false });
+                return BadRequest(new AuthResponse { Message = "User not found!", Success = false });
             }
 
-            // Хеширование пароля и сравнение
             var hashedPassword = HashPassword(userLoginDto.Password);
             if (user.HashedPassword != hashedPassword)
             {
-                return BadRequest(new AuthResponse { Message = "Неверный пароль", Success = false });
+                return BadRequest(new AuthResponse { Message = "Incorrect password!", Success = false });
             }
 
-            return Ok(new AuthResponse { Message = "Вход успешен", Success = true, Username = user.Username });
+            return Ok(new AuthResponse { Message = "Sign in successful!", Success = true, Username = user.Username });
         }
 
-        // Метод для хеширования пароля
         private string HashPassword(string password)
         {
             using (SHA256 sha256Hash = SHA256.Create())

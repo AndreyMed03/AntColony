@@ -1,37 +1,22 @@
-using API_Server.Contexts;
-using Microsoft.EntityFrameworkCore;
-using System;
+using API_Server;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
-public class Program
+namespace API_Server 
 {
-    public IConfiguration Configuration { get; }
-
-    public Program(IConfiguration configuration)
+    public class Program
     {
-        Configuration = configuration;
-    }
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Настройка подключения к PostgreSQL
-        services.AddDbContext<GameDbContext>(options =>
-            options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-
-        services.AddControllers();
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        if (env.IsDevelopment())
+        public static void Main(string[] args)
         {
-            app.UseDeveloperExceptionPage();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        app.UseRouting();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
     }
 }
 

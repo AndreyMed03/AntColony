@@ -5,27 +5,29 @@ using System.Collections;
 
 public class ApiClient : MonoBehaviour
 {
-    private string apiUrl = "http://your-api-url/api/auth";  // Укажи здесь актуальный URL твоего API
+    private string apiUrl = "https://localhost:7077/api/auth";
 
     public IEnumerator PostRequest(string endpoint, string jsonData, System.Action<string> callback)
     {
         string url = $"{apiUrl}/{endpoint}";
-        UnityWebRequest request = new UnityWebRequest(url, "POST");
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
-        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        request.SetRequestHeader("Content-Type", "application/json");
-
-        yield return request.SendWebRequest();
-
-        if (request.result == UnityWebRequest.Result.Success)
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
-            callback(request.downloadHandler.text);
-        }
-        else
-        {
-            Debug.LogError($"Error: {request.error}");
-            callback(null);
-        }
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                // Успешный ответ
+                callback(request.downloadHandler.text);
+            }
+            else
+            {
+                callback(request.downloadHandler.text);
+            }
+        } // Освобождаем ресурсы
     }
 }
