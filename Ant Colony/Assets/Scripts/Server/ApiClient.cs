@@ -5,7 +5,7 @@ using System.Collections;
 
 public class ApiClient : MonoBehaviour
 {
-    private string apiUrl = "https://localhost:7077/api/auth";
+    private string apiUrl = "http://localhost:5004/api/auth";
 
     public IEnumerator PostRequest(string endpoint, string jsonData, System.Action<string> callback)
     {

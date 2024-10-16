@@ -78,14 +78,25 @@ public class AuthManager : MonoBehaviour
 
     public void SignUp()
     {
+        signUpMessageText.text = "Your account is created...";
         string email = signUpEmail.text;
         string login = signUpLogin.text;
         string password = signUpPassword.text;
         string confirmPassword = signUpConfirmPassword.text;
 
-        if (password != confirmPassword)
+        if (!Regex.IsMatch(email, @"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$"))
         {
-            signUpMessageText.text = "Passwords do not match!";
+            signUpMessageText.text = "Enter correct Email!";
+            signUpMessageText.color = Color.red;
+        }
+        else if(password.Length < 6)
+        {
+            signUpMessageText.text = "Invalid password length!";
+            signUpMessageText.color = Color.red;
+        }
+        else if (password != confirmPassword)
+        {
+            signUpMessageText.text = "Passwords don't match!";
             signUpMessageText.color = Color.red;
         }
         else if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
@@ -93,15 +104,10 @@ public class AuthManager : MonoBehaviour
             signUpMessageText.text = "Enter all fields!";
             signUpMessageText.color = Color.red;
         }
-        else if (!Regex.IsMatch(email, @"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$"))
-        {
-            signUpMessageText.text = "Enter correct Email!";
-            signUpMessageText.color = Color.red;
-        }
         else
         {
             UserRegister userRegister = new UserRegister { Username = login, Email = email, Password = password };
-            string jsonData = JsonConvert.SerializeObject(userRegister); // Используем Newtonsoft.Json для сериализации
+            string jsonData = JsonConvert.SerializeObject(userRegister);
 
             StartCoroutine(apiClient.PostRequest("register", jsonData, HandleSignUpResponse));
         }
@@ -111,7 +117,7 @@ public class AuthManager : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(response))
         {
-            AuthResponse authResponse = JsonConvert.DeserializeObject<AuthResponse>(response); // Используем Newtonsoft.Json для десериализации
+            AuthResponse authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
             signUpMessageText.text = authResponse.Message;
             signUpMessageText.color = authResponse.success ? Color.green : Color.red;
         }
@@ -140,8 +146,8 @@ public class AuthManager : MonoBehaviour
     [System.Serializable]
     private class AuthResponse
     {
-        public string Message; // Это поле должно точно соответствовать имени в JSON
-        public bool success;    // Это поле тоже должно соответствовать имени в JSON
-        public string Username; // Это поле должно точно соответствовать имени в JSON
+        public string Message;
+        public bool success;
+        public string Username;
     }
 }
