@@ -5,7 +5,7 @@ using UnityEngine;
 public static class MeshGenerator
 {
 
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve, int levelOfDetail)
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve, int levelOfDetail, bool useFlatShading)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -15,7 +15,7 @@ public static class MeshGenerator
         int meshSimplificationIncrement = (levelOfDetail == 0) ? 1 : levelOfDetail * 2;
         int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
 
-        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine);
+        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine, useFlatShading);
         int vertexIndex = 0;
 
         for (int y = 0; y < height; y += meshSimplificationIncrement)
@@ -35,8 +35,12 @@ public static class MeshGenerator
             }
         }
 
-        return meshData;
+        if (useFlatShading)
+        {
+            meshData.FlatShading();  // Вызов функции плоского шейдинга
+        }
 
+        return meshData;
     }
 }
 
@@ -48,8 +52,11 @@ public class MeshData
 
     int triangleIndex;
 
-    public MeshData(int meshWidth, int meshHeight)
+    bool useFlatShading;
+
+    public MeshData(int meshWidth, int meshHeight, bool useFlatShading)
     {
+        this.useFlatShading = useFlatShading;
         vertices = new Vector3[meshWidth * meshHeight];
         uvs = new Vector2[meshWidth * meshHeight];
         triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
@@ -63,6 +70,22 @@ public class MeshData
         triangleIndex += 3;
     }
 
+    public void FlatShading()
+    {
+        Vector3[] flatShadedVertices = new Vector3[triangles.Length];
+        Vector2[] flatShadedUvs = new Vector2[triangles.Length];
+
+        for (int i = 0; i < triangles.Length; i++)
+        {
+            flatShadedVertices[i] = vertices[triangles[i]];
+            flatShadedUvs[i] = uvs[triangles[i]];
+            triangles[i] = i;
+        }
+
+        vertices = flatShadedVertices;
+        uvs = flatShadedUvs;
+    }
+
     public Mesh CreateMesh()
     {
         Mesh mesh = new Mesh();
@@ -72,5 +95,5 @@ public class MeshData
         mesh.RecalculateNormals();
         return mesh;
     }
-
 }
+
