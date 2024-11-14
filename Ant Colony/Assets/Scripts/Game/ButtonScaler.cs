@@ -4,7 +4,7 @@ using UnityEngine;
 public class ButtonScaler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private float exitScale = 1.0f;
-    [SerializeField] private float enterScale = 1.1f;
+    [SerializeField] private float enterScale = 1.06f;
 
     private void OnDisable()
     {
