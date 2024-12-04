@@ -95,7 +95,17 @@ public class MapGenerator : MonoBehaviour
         }
         else if (drawMode == DrawMode.Mesh)
         {
-            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, editorPreviewLOD, useFlatShading), TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize));
+            // Обновляем сетку и текстуру
+            display.DrawMesh(
+                MeshGenerator.GenerateTerrainMesh(
+                    mapData.heightMap,
+                    meshHeightMultiplier,
+                    meshHeightCurve,
+                    editorPreviewLOD,
+                    useFlatShading
+                ),
+                TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize)
+            );
         }
         else if (drawMode == DrawMode.FalloffMap)
         {
@@ -103,9 +113,10 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
+
     MapData GenerateMapData(Vector2 centre)
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, centre + offset, normalizeMode);
+        float[,] noiseMap = Noise.GenerateNoiseMap(mapChunkSize, mapChunkSize, UnityEngine.Random.Range(0, 1000), noiseScale, octaves, persistance, lacunarity, centre + offset, normalizeMode);
 
         Color[] colourMap = new Color[mapChunkSize * mapChunkSize];
         for (int y = 0; y < mapChunkSize; y++)

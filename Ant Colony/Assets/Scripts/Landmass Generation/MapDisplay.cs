@@ -16,7 +16,16 @@ public class MapDisplay : MonoBehaviour
 
     public void DrawMesh(MeshData meshData, Texture2D texture)
     {
+        // Применяем сетку и текстуру к объекту
         meshFilter.sharedMesh = meshData.CreateMesh();
         meshRenderer.sharedMaterial.mainTexture = texture;
+
+        // Обновляем или добавляем MeshCollider
+        MeshCollider meshCollider = meshFilter.GetComponent<MeshCollider>();
+        if (meshCollider == null)
+        {
+            meshCollider = meshFilter.gameObject.AddComponent<MeshCollider>();
+        }
+        meshCollider.sharedMesh = meshFilter.sharedMesh; // Привязываем сетку
     }
 }
