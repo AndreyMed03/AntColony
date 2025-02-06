@@ -39,7 +39,7 @@ public class AuthManager : MonoBehaviour
         string password = signInPassword.text;
 
         UserLogin userLogin = new UserLogin { Username = signInInput, Password = password };
-        string jsonData = JsonConvert.SerializeObject(userLogin); // Используем Newtonsoft.Json для сериализации
+        string jsonData = JsonConvert.SerializeObject(userLogin);
 
         StartCoroutine(apiClient.PostRequest("login", jsonData, HandleSignInResponse));
     }
@@ -50,15 +50,15 @@ public class AuthManager : MonoBehaviour
 
         if (!string.IsNullOrEmpty(response))
         {
-            AuthResponse authResponse = JsonConvert.DeserializeObject<AuthResponse>(response); // Используем Newtonsoft.Json для десериализации
+            AuthResponse authResponse = JsonConvert.DeserializeObject<AuthResponse>(response);
             Debug.Log($"Auth Response: Message = {authResponse.Message}, Success = {authResponse.success}, Username = {authResponse.Username}");
 
-            signInMessageText.text = authResponse.Message; // Обновляем текст
+            signInMessageText.text = authResponse.Message;
             signInMessageText.color = authResponse.success ? Color.green : Color.red;
 
             if (authResponse.success)
             {
-                Debug.Log("Switching to menuForm."); // Отладка
+                Debug.Log("Switching to menuForm.");
                 menuForm.SetActive(true);
                 loginForm.SetActive(false);
                 currentUserSession.UpdateUserLogin(authResponse.Username);
@@ -87,6 +87,11 @@ public class AuthManager : MonoBehaviour
         if (!Regex.IsMatch(email, @"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$"))
         {
             signUpMessageText.text = "Enter correct Email!";
+            signUpMessageText.color = Color.red;
+        }
+        else if (login.Length > 14 || login.Length < 6)
+        {
+            signUpMessageText.text = "Invalid login length!";
             signUpMessageText.color = Color.red;
         }
         else if(password.Length < 6)

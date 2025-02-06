@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 592807241798463951}
   - component: {fileID: 3449445337834308869}
   - component: {fileID: 7815631253614629803}
+  - component: {fileID: -8474168457632737308}
   m_Layer: 7
   m_Name: cliff_1
   m_TagString: Untagged
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2021265036394502435, guid: 063308f35aa2d5b4790b86500b00808e, type: 3}
+--- !u!114 &-8474168457632737308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3809508939827143888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

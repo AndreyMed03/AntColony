@@ -13,16 +13,13 @@ namespace API_Server
             Configuration = configuration;
         }
 
-        // Настройка сервисов, таких как DbContext и контроллеры
         public void ConfigureServices(IServiceCollection services)
         {
-            // Настройка подключения к PostgreSQL
             services.AddDbContext<GameDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllers();
 
-            // Добавление Swagger для генерации API-документации
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -32,30 +29,26 @@ namespace API_Server
                 });
             });
         }
-
-        // Настройка пайплайна обработки запросов
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage(); // Включение страницы ошибок в режиме разработки
+                app.UseDeveloperExceptionPage();
             }
 
-            // Включение Swagger
             app.UseSwagger();
 
-            // Настройка интерфейса Swagger UI
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Server V1");
-                c.RoutePrefix = string.Empty; // Открывать Swagger по корневому адресу
+                c.RoutePrefix = string.Empty;
             });
 
-            app.UseRouting(); // Включение маршрутизации запросов
+            app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers(); // Маршрутизация к контроллерам
+                endpoints.MapControllers();
             });
         }
     }

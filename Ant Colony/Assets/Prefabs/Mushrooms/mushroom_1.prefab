@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4911020547492043506}
   - component: {fileID: 7188734990882483768}
   - component: {fileID: 2522253470584582209}
+  - component: {fileID: 7080519553048634154}
   m_Layer: 14
   m_Name: mushroom_1
   m_TagString: Untagged
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 7095223698070364054, guid: 75e11f6a18ca5584fabd67837e12e57b, type: 3}
+--- !u!114 &7080519553048634154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8701930927159709677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

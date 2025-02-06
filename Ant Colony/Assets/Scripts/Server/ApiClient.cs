@@ -5,7 +5,7 @@ using System.Collections;
 
 public class ApiClient : MonoBehaviour
 {
-    private string apiUrl = "http://localhost:5004/api/auth";
+    private string apiUrl = "https://85dc-178-168-186-44.ngrok-free.app/api/auth";
 
     public IEnumerator PostRequest(string endpoint, string jsonData, System.Action<string> callback)
     {

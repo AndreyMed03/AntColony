@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1897001725512425653}
   - component: {fileID: 4447153230830916735}
   - component: {fileID: 2601991427872257140}
+  - component: {fileID: -1567684011223684771}
   m_Layer: 13
   m_Name: grass_8
   m_TagString: Untagged
@@ -98,3 +99,19 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 5396871004820607713, guid: 4bf5474ae26fd554799bfc8e3084ee42, type: 3}
+--- !u!114 &-1567684011223684771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2789850489310148010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

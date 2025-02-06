@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class SpawnerManager : MonoBehaviour
 {
@@ -12,17 +13,14 @@ public class SpawnerManager : MonoBehaviour
     [SerializeField]
     private float delayBetweenSpawns = 0.5f;  // Задержка между каждым спавнером
 
+    private NavMeshSurface navMeshSurface;  // Для ссылки на NavMeshSurface
+
     private void Start()
     {
+        navMeshSurface = FindObjectOfType<NavMeshSurface>();  // Найти NavMeshSurface в сцене
         GenerateAllSequentially();
     }
 
-    //private IEnumerator GenerateWithInitialDelay()
-    //{
-    //    yield return new WaitForSeconds(2.0f);  // Задержка перед первым спавнером
-
-    //    GenerateAllSequentially();  // Запуск генерации всех спавнеров
-    //}
     public void GenerateAllSequentially()
     {
         StartCoroutine(GenerateSequentially());
@@ -30,17 +28,21 @@ public class SpawnerManager : MonoBehaviour
 
     private IEnumerator GenerateSequentially()
     {
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(0.5f);  // Задержка перед началом спавна
+
         foreach (var spawner in spawners)
         {
             if (spawner != null)
             {
-                spawner.InstantiateNew(); 
-                
-                // Генерация всех объектов для текущего спавнера
-                
-                yield return new WaitForSeconds(delayBetweenSpawns);  // Задержка между генерацией каждого спавнера
+                spawner.InstantiateNew();  // Генерация объектов спавнером
+                yield return new WaitForSeconds(delayBetweenSpawns);  // Задержка между спавнами
             }
+        }
+
+        // После завершения всех спавнов перестроить NavMesh
+        if (navMeshSurface != null)
+        {
+            navMeshSurface.BuildNavMesh();
         }
     }
 }
