@@ -21,13 +21,12 @@ public class ApiClient : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                // Успешный ответ
                 callback(request.downloadHandler.text);
             }
             else
             {
                 callback(request.downloadHandler.text);
             }
-        } // Освобождаем ресурсы
+        }
     }
 }

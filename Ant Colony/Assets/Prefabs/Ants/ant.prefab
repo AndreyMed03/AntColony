@@ -2078,8 +2078,8 @@ MonoBehaviour:
   _Editor_EnsureCount: 0
   _Editor_OnValidateTrigger: 1
   _EditorAllowAutoUpdateFeetParams: 1
-  _EditorCategory: 1
-  _EditorSetupCategory: 0
+  _EditorCategory: 0
+  _EditorSetupCategory: 1
   _EditorMotionCategory: 2
   _EditorExtraCategory: 0
   setupPose:
@@ -2108,7 +2108,7 @@ MonoBehaviour:
   FadeOffAtDistance: 0
   GroundMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 175304
   RaycastHitTrigger: 1
   CastDistance: 1
   RaycastStartHeight: 0

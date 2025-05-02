@@ -8,16 +8,16 @@ using UnityEngine.AI;
 public class SpawnerManager : MonoBehaviour
 {
     [SerializeField]
-    private EnviroSpawn_CS[] spawners;  // Массив всех спавнеров
+    private EnviroSpawn_CS[] spawners;
 
     [SerializeField]
-    private float delayBetweenSpawns = 0.5f;  // Задержка между каждым спавнером
+    private float delayBetweenSpawns = 0.5f;
 
-    private NavMeshSurface navMeshSurface;  // Для ссылки на NavMeshSurface
+    private NavMeshSurface navMeshSurface;
 
     private void Start()
     {
-        navMeshSurface = FindObjectOfType<NavMeshSurface>();  // Найти NavMeshSurface в сцене
+        navMeshSurface = FindObjectOfType<NavMeshSurface>();
         GenerateAllSequentially();
     }
 
@@ -28,18 +28,17 @@ public class SpawnerManager : MonoBehaviour
 
     private IEnumerator GenerateSequentially()
     {
-        yield return new WaitForSeconds(0.5f);  // Задержка перед началом спавна
+        yield return new WaitForSeconds(0.5f);
 
         foreach (var spawner in spawners)
         {
             if (spawner != null)
             {
-                spawner.InstantiateNew();  // Генерация объектов спавнером
-                yield return new WaitForSeconds(delayBetweenSpawns);  // Задержка между спавнами
+                spawner.InstantiateNew();
+                yield return new WaitForSeconds(delayBetweenSpawns);
             }
         }
 
-        // После завершения всех спавнов перестроить NavMesh
         if (navMeshSurface != null)
         {
             navMeshSurface.BuildNavMesh();

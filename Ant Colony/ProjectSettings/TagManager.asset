@@ -3,12 +3,14 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Ant
+  - Enemy_ant
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Landscape
   - Water
   - UI
   - Big Mountain
@@ -22,7 +24,7 @@ TagManager:
   - Mushroom
   - Wood
   - Ant
-  - 
+  - Enemy_ant
   - 
   - 
   - 
