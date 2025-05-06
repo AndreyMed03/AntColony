@@ -28,7 +28,7 @@ public class StartGame : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(sceneName))
         {
-            SceneManager.LoadScene(sceneName);
+            SceneTransition.SwitchToScene(sceneName);
         }
         else
         {
