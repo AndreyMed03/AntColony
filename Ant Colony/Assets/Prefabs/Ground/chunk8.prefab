@@ -19016,9 +19016,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3174440543378856604}
-  m_Layer: 0
+  m_Layer: 21
   m_Name: chunk8
-  m_TagString: Untagged
+  m_TagString: SmallChunk
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647

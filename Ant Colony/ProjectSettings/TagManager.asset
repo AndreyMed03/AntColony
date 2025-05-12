@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Ant
   - Enemy_ant
+  - LowerChunk
+  - SmallChunk
+  - LargeChunk
   layers:
   - Default
   - TransparentFX
@@ -27,9 +30,9 @@ TagManager:
   - Enemy_ant
   - AntHill
   - Teleport Zone
-  - 
-  - 
-  - 
+  - Large Chunk
+  - Small Chunk
+  - Lower Chunk
   - 
   - 
   - 

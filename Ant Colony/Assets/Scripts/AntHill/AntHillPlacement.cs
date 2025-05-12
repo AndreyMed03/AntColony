@@ -123,6 +123,8 @@ public class AntHillPlacement : MonoBehaviour
         goToAntHillButton.SetActive(true);
 
         ResetPlacementState();
+
+        FindObjectOfType<AntHillChunkManager>()?.HandleAnthillPlacement(currentGhost);
     }
 
     public void CancelPlacement()

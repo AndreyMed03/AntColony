@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5765505604463766767}
   - component: {fileID: 5791932154671769314}
+  - component: {fileID: 5757836580790992708}
   m_Layer: 18
   m_Name: TeleportZone
   m_TagString: Untagged
@@ -40,6 +41,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3414841782958154662}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &5757836580790992708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3414841782958154662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef189399ac8bf3c488428c84cee3a5a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lowerTriggerPrefab: {fileID: 4951933596161026842, guid: 5f2e266bf0a1acf42800af4a3872a594,
+    type: 3}
+  returnButton: {fileID: 1812302625106320306, guid: 9204bf10b792c574aa9e3f312146441d,
+    type: 3}
 --- !u!1 &3611365136743319465
 GameObject:
   m_ObjectHideFlags: 0
