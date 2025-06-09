@@ -10,10 +10,17 @@ public class AntMovement : MonoBehaviour
     private NavMeshAgent agent;
 
     private bool isPlacementMode = false;
+    private int ignoreLayerMask;
+
     void Start()
     {
         mainCamera = Camera.main;
         agent = GetComponent<NavMeshAgent>();
+
+        // Игнорируем слой Transparent Piece
+        int transparentLayer = LayerMask.NameToLayer("Transparent Piece");
+        ignoreLayerMask = ~(1 << transparentLayer);
+
         PlaceAntOnGround();
     }
 
@@ -25,7 +32,7 @@ public class AntMovement : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ignoreLayerMask))
             {
                 agent.SetDestination(hit.point);
             }
@@ -34,7 +41,7 @@ public class AntMovement : MonoBehaviour
         else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.GetTouch(0).position);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ignoreLayerMask))
             {
                 agent.SetDestination(hit.point);
             }
@@ -55,8 +62,7 @@ public class AntMovement : MonoBehaviour
     private void PlaceAntOnGround()
     {
         RaycastHit hit;
-
-        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, Mathf.Infinity))
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, Mathf.Infinity, ignoreLayerMask))
         {
             transform.position = hit.point;
             agent.Warp(hit.point);

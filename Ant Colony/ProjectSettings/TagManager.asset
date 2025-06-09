@@ -9,6 +9,7 @@ TagManager:
   - LowerChunk
   - SmallChunk
   - LargeChunk
+  - Piece
   layers:
   - Default
   - TransparentFX
@@ -33,8 +34,8 @@ TagManager:
   - Large Chunk
   - Small Chunk
   - Lower Chunk
-  - 
-  - 
+  - Chunk Piece
+  - Transparent Piece
   - 
   - 
   - 

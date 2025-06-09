@@ -1,15 +1,22 @@
+using System;
+using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
-using System.Text;
-using System.Collections;
 
 public class ApiClient : MonoBehaviour
 {
-    private string apiUrl = "https://85dc-178-168-186-44.ngrok-free.app/api/auth";
+    [SerializeField] private ApiConfig config;
 
-    public IEnumerator PostRequest(string endpoint, string jsonData, System.Action<string> callback)
+    public IEnumerator PostRequest(string endpoint, string jsonData, Action<string> onSuccess, Action<string> onError = null)
     {
-        string url = $"{apiUrl}/{endpoint}";
+        if (config == null)
+        {
+            Debug.LogError("API Config is not assigned in ApiClient.");
+            yield break;
+        }
+
+        string url = $"{config.apiBaseUrl}/{endpoint}";
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
@@ -17,15 +24,21 @@ public class ApiClient : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
+#if UNITY_2020_2_OR_NEWER
             yield return request.SendWebRequest();
+#else
+            yield return request.Send();
+#endif
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                callback(request.downloadHandler.text);
+                onSuccess?.Invoke(request.downloadHandler.text);
             }
             else
             {
-                callback(request.downloadHandler.text);
+                string errorMessage = $"Error {request.responseCode}: {request.error}\n{request.downloadHandler.text}";
+                Debug.LogError(errorMessage);
+                onError?.Invoke(errorMessage);
             }
         }
     }

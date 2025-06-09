@@ -7,14 +7,13 @@ public class CameraAutoTarget : MonoBehaviour
 {
 
     [SerializeField] private string targetTag = "Ant"; // Тег объекта, который камера будет искать
-    [SerializeField] private float searchInterval = 0.5f; // Интервал поиска объекта (в секундах)
+    [SerializeField] private float searchInterval = 0.5f;
 
-    private CinemachineFreeLook freeLookCamera; // Ссылка на CineMachine Free Look камеру
-    private Transform currentTarget; // Текущая цель
+    private CinemachineFreeLook freeLookCamera;
+    private Transform currentTarget;
 
     private void Awake()
     {
-        // Автоматически находим компонент CineMachine Free Look
         freeLookCamera = GetComponent<CinemachineFreeLook>();
         if (freeLookCamera == null)
         {

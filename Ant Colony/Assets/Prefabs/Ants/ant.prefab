@@ -2108,7 +2108,7 @@ MonoBehaviour:
   FadeOffAtDistance: 0
   GroundMask:
     serializedVersion: 2
-    m_Bits: 6728904
+    m_Bits: 31894728
   RaycastHitTrigger: 1
   CastDistance: 1
   RaycastStartHeight: 0

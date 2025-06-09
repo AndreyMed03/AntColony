@@ -11,9 +11,13 @@ public class AntHillPlacement : MonoBehaviour
     public GameObject cancelButton;
     public GameObject spawnButton;
     public GameObject goToAntHillButton;
+    public LayerMask placementLayerMask;
+    public LayerMask blockPlacementMask;
 
     private GameObject currentGhost;
     private GameObject lastPlacedAnthill;
+
+    private NavMeshSurface navMeshSurface;
 
     private Camera mainCamera;
     private bool isPlacing = false;
@@ -105,9 +109,29 @@ public class AntHillPlacement : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject()) return;
 
         Ray ray = mainCamera.ScreenPointToRay(screenPosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+
+        // Сначала проверим, не попали ли по запрещённым слоям
+        if (Physics.Raycast(ray, out RaycastHit blockHit, Mathf.Infinity, blockPlacementMask))
+        {
+            // Если запрещённый слой ближе, чем разрешённый — выходим
+            if (Physics.Raycast(ray, out RaycastHit allowedHit, Mathf.Infinity, placementLayerMask))
+            {
+                if (blockHit.distance < allowedHit.distance)
+                    return; // Заблокирован — не двигаем
+            }
+            else
+            {
+                return; // Попали только в запрещённый слой — блокируем
+            }
+        }
+
+        // Теперь размещаем по разрешённым слоям
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, placementLayerMask))
         {
             currentGhost.transform.position = hit.point;
+
+            Quaternion slopeRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            currentGhost.transform.rotation = slopeRotation * Quaternion.Euler(0f, currentGhost.transform.eulerAngles.y, 0f);
         }
     }
 
@@ -190,9 +214,17 @@ public class AntHillPlacement : MonoBehaviour
             Debug.LogWarning("TeleportZone не найден, чтобы добавить коллайдер.");
         }
 
-        NavMeshSurface surface = FindObjectOfType<NavMeshSurface>();
-        if (surface != null)
-            surface.BuildNavMesh();
+        // Запекаем карту с новым префабом
+        GameObject navMeshObj = GameObject.Find("NavMesh");
+        if (navMeshObj != null)
+        {
+            navMeshSurface = navMeshObj.GetComponent<NavMeshSurface>();
+            navMeshSurface.BuildNavMesh();
+        }
+        else
+        {
+            Debug.LogWarning("Не найден объект с именем NavMesh");
+        }
     }
 
     public void GoToAntHill()

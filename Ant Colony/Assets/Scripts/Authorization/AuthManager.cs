@@ -38,7 +38,11 @@ public class AuthManager : MonoBehaviour
         string signInInput = signInEmail.text;
         string password = signInPassword.text;
 
-        UserLogin userLogin = new UserLogin { Username = signInInput, Password = password };
+        UserLogin userLogin = new UserLogin 
+        { 
+            Username = signInInput, 
+            Password = password 
+        };
         string jsonData = JsonConvert.SerializeObject(userLogin);
 
         StartCoroutine(apiClient.PostRequest("login", jsonData, HandleSignInResponse));

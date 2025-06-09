@@ -11,13 +11,26 @@ public class SpawnerManager : MonoBehaviour
     private EnviroSpawn_CS[] spawners;
 
     [SerializeField]
-    private float delayBetweenSpawns = 0.5f;
+    private float delayBetweenSpawns = 0.1f;
+
+    [SerializeField]
+    private string navMeshObjectName = "NavMesh"; // имя объекта с нужным NavMeshSurface
 
     private NavMeshSurface navMeshSurface;
 
     private void Start()
     {
-        navMeshSurface = FindObjectOfType<NavMeshSurface>();
+        // Находим объект по имени и берём у него NavMeshSurface
+        GameObject navMeshObj = GameObject.Find(navMeshObjectName);
+        if (navMeshObj != null)
+        {
+            navMeshSurface = navMeshObj.GetComponent<NavMeshSurface>();
+        }
+        else
+        {
+            Debug.LogWarning($"Не найден объект с именем {navMeshObjectName}.");
+        }
+
         GenerateAllSequentially();
     }
 
@@ -42,6 +55,10 @@ public class SpawnerManager : MonoBehaviour
         if (navMeshSurface != null)
         {
             navMeshSurface.BuildNavMesh();
+        }
+        else
+        {
+            Debug.LogWarning("NavMeshSurface для ландшафта не найден.");
         }
     }
 }
