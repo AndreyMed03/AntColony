@@ -14,27 +14,48 @@ public class ReturnTeleportTrigger : MonoBehaviour
     public CameraZoneCleaning cameraZoneCleaning;
     public DiggingManager diggingManager;
 
-    public void SetReturnPoint(Vector3 position)
+    public static ReturnTeleportTrigger ActiveInstance;
+
+    public void Initialize(Vector3 position,
+                           CameraZoomController zoomController,
+                           CameraZoneCleaning zoneCleaning,
+                           DiggingManager digging)
     {
         returnPosition = position;
+        cameraZoomController = zoomController;
+        cameraZoneCleaning = zoneCleaning;
+        diggingManager = digging;
+
+        ActiveInstance = this;
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        cameraZoomController = FindObjectOfType<CameraZoomController>();
-        cameraZoneCleaning = FindObjectOfType<CameraZoneCleaning>();
-        diggingManager = FindObjectOfType<DiggingManager>();
+        //Debug.Log("ReturnTeleportTrigger: OnEnable() вызван");
+        //Debug.Log("OnEnable вызван у " + gameObject.name + " (" + GetInstanceID() + ")");
 
-        Button[] allButtons = Resources.FindObjectsOfTypeAll<Button>();
-        foreach (Button btn in allButtons)
+        if (returnButton == null)
         {
-            if (btn.name == "Climb_Up_Button")
+            Button[] allButtons = Resources.FindObjectsOfTypeAll<Button>();
+            foreach (Button btn in allButtons)
             {
-                returnButton = btn;
-                returnButton.onClick.AddListener(OnReturnButtonClicked);
-                returnButton.gameObject.SetActive(false);
-                return;
+                if (btn.name == "Climb_Up_Button")
+                {
+                    returnButton = btn;
+                    returnButton.gameObject.SetActive(false);
+                    break;
+                }
             }
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Ant"))
+        {
+            player = other.gameObject;
+            if (returnButton != null)
+                returnButton.gameObject.SetActive(true);
         }
     }
 
@@ -62,20 +83,22 @@ public class ReturnTeleportTrigger : MonoBehaviour
 
     public void OnReturnButtonClicked()
     {
+        //Debug.Log("OnReturnButtonClicked вызван у " + gameObject.name + " (" + GetInstanceID() + ")");
+
+        if (player == null)
+            player = GameObject.FindWithTag("Ant");
         if (player == null) return;
 
-        // Смещение на поверхности — чтобы не появиться точно в центре входа
         Vector2 offset2D = Random.insideUnitCircle.normalized * 15f;
-        Vector3 surfaceReturnPos = returnPosition + new Vector3(offset2D.x, 10f, offset2D.y); // 10f по Y выше для raycast
+        Vector3 surfaceReturnPos = returnPosition + new Vector3(offset2D.x, 10f, offset2D.y);
 
-        // Raycast вниз, чтобы точно встать на землю
         if (Physics.Raycast(surfaceReturnPos, Vector3.down, out RaycastHit hit, 50f))
         {
-            surfaceReturnPos.y = hit.point.y + 0.05f; // немного над землёй
+            surfaceReturnPos.y = hit.point.y + 0.05f;
         }
         else
         {
-            surfaceReturnPos.y = returnPosition.y; // fallback, не прибавляем 0.5!
+            surfaceReturnPos.y = returnPosition.y;
         }
 
         var agent = player.GetComponent<NavMeshAgent>();
@@ -85,24 +108,26 @@ public class ReturnTeleportTrigger : MonoBehaviour
             player.transform.position = surfaceReturnPos;
 
         if (cameraZoomController != null)
-            cameraZoomController.ResetZoom(); // Возврат масштаба
+            cameraZoomController.ResetZoom();
         if (cameraZoneCleaning != null)
-            cameraZoneCleaning.enabled = false; // Отключение чистки зоны камеры
+            cameraZoneCleaning.enabled = false;
         if (diggingManager != null)
-            diggingManager.enabled = false; // Отключение механизма копания
+            diggingManager.enabled = false;
 
         if (returnButton != null)
             returnButton.gameObject.SetActive(false);
+
         foreach (Button btn in Resources.FindObjectsOfTypeAll<Button>())
         {
             if (btn.name == "Digging_Button")
                 btn.gameObject.SetActive(false);
+            if (btn.name == "Go_To_AntHill_Button")
+                btn.gameObject.SetActive(true);
         }
 
         var teleportTrigger = FindObjectOfType<TeleportTrigger>();
         if (teleportTrigger != null)
-        {
-            teleportTrigger.AddAntToCooldown(player, 1.5f); // 1.5 секунды "иммунитет"
-        }
+            teleportTrigger.AddAntToCooldown(player, 1.5f);
     }
 }
+

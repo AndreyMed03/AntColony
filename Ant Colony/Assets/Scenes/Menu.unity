@@ -6849,6 +6849,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1374886895}
     m_Modifications:
+    - target: {fileID: 503543427559064598, guid: 88ea994db16a329499e9a7137cef6e6c,
+        type: 3}
+      propertyPath: textClosing
+      value: 
+      objectReference: {fileID: 5650512740059962792}
+    - target: {fileID: 503543427559064598, guid: 88ea994db16a329499e9a7137cef6e6c,
+        type: 3}
+      propertyPath: textOpening
+      value: 
+      objectReference: {fileID: 5650512740059962791}
+    - target: {fileID: 1433806740339789153, guid: 88ea994db16a329499e9a7137cef6e6c,
+        type: 3}
+      propertyPath: m_text
+      value: Cleaning up...
+      objectReference: {fileID: 0}
     - target: {fileID: 1433806740768292096, guid: 88ea994db16a329499e9a7137cef6e6c,
         type: 3}
       propertyPath: m_Name
@@ -6959,8 +6974,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2081021921796549222, guid: 88ea994db16a329499e9a7137cef6e6c,
+        type: 3}
+      propertyPath: m_text
+      value: Returning to menu...
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88ea994db16a329499e9a7137cef6e6c, type: 3}
+--- !u!114 &5650512740059962791 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2081021921796549222, guid: 88ea994db16a329499e9a7137cef6e6c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5650512740059962790}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5650512740059962792 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1433806740339789153, guid: 88ea994db16a329499e9a7137cef6e6c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5650512740059962790}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6741678379534786727 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1433806740768292097, guid: 88ea994db16a329499e9a7137cef6e6c,

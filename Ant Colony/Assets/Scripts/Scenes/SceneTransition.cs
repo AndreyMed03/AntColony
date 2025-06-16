@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,16 +15,33 @@ public class SceneTransition : MonoBehaviour
     private Animator componentAnimator;
     private AsyncOperation loadingSceneOperation;
 
+    public TextMeshProUGUI textClosing;
+    public TextMeshProUGUI textOpening;
+
     public static void SwitchToScene(string sceneName)
     {
+        if (instance == null)
+        {
+            Debug.LogError("SceneTransition instance not found!");
+            return;
+        }
+
+        // Меняем надписи в зависимости от целевой сцены
+        if (sceneName == "Game")
+        {
+            instance.textClosing.text = "Loading scene...";
+            instance.textOpening.text = "Creating Map...";
+        }
+        else if (sceneName == "Menu")
+        {
+            instance.textClosing.text = "Cleaning up...";
+            instance.textOpening.text = "Returning to menu...";
+        }
+
         instance.componentAnimator.SetTrigger("sceneClosing");
 
         instance.loadingSceneOperation = SceneManager.LoadSceneAsync(sceneName);
-
-        // Чтобы сцена не начала переключаться пока играет анимация closing:
         instance.loadingSceneOperation.allowSceneActivation = false;
-
-        //instance.LoadingProgressBar.fillAmount = 0;
     }
 
     private void Start()

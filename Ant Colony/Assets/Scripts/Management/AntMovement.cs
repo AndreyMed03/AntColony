@@ -11,6 +11,8 @@ public class AntMovement : MonoBehaviour
 
     private bool isPlacementMode = false;
     private int ignoreLayerMask;
+    private float lastTapTime = 0f;
+    private float doubleTapMaxDelay = 0.3f;
 
     void Start()
     {
@@ -29,24 +31,41 @@ public class AntMovement : MonoBehaviour
         if (isPlacementMode) return;
         if (EventSystem.current.IsPointerOverGameObject()) return;
 
+#if UNITY_EDITOR
         if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ignoreLayerMask))
-            {
-                agent.SetDestination(hit.point);
-            }
+            MoveAgentToClick(Input.mousePosition);
         }
-#if !UNITY_EDITOR
-        else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+#else
+        if (Input.touchCount == 1)
         {
-            Ray ray = mainCamera.ScreenPointToRay(Input.GetTouch(0).position);
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ignoreLayerMask))
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Ended)
             {
-                agent.SetDestination(hit.point);
+                float timeSinceLastTap = Time.time - lastTapTime;
+
+                if (timeSinceLastTap <= doubleTapMaxDelay)
+                {
+                    MoveAgentToClick(touch.position);
+                    lastTapTime = 0f; // סבנמס
+                }
+                else
+                {
+                    lastTapTime = Time.time;
+                }
             }
         }
 #endif
+    }
+
+    private void MoveAgentToClick(Vector2 screenPosition)
+    {
+        Ray ray = mainCamera.ScreenPointToRay(screenPosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ignoreLayerMask))
+        {
+            agent.SetDestination(hit.point);
+        }
     }
 
     public void SetPlacementMode(bool state)

@@ -6,12 +6,15 @@ using UnityEngine;
 public class CameraRotation : MonoBehaviour
 {
     public CinemachineFreeLook freeLookCamera;
-    public float rotationSpeed = 300f;
+    public float rotationSpeed = 5f;
+    public bool isRotationBlocked = false; // Добавлено
 
     private Vector2 lastTouchPosition;
 
     void Update()
     {
+        if (isRotationBlocked) return; // Блокируем поворот
+
         if (Input.touchCount == 1)
         {
             Touch touch = Input.GetTouch(0);

@@ -25,6 +25,7 @@ public class AntHillPlacement : MonoBehaviour
     private bool hasRotated = false;
 
     private AntMovement antMovement;
+    private CameraRotation cameraRotation;
 
     void Start()
     {
@@ -34,6 +35,8 @@ public class AntHillPlacement : MonoBehaviour
         goToAntHillButton.SetActive(false);
 
         antMovement = FindObjectOfType<AntMovement>();
+        cameraRotation = FindObjectOfType<CameraRotation>();
+
     }
 
     public void StartPlacement()
@@ -43,6 +46,7 @@ public class AntHillPlacement : MonoBehaviour
 
         isPlacing = true;
         antMovement.SetPlacementMode(true);
+        cameraRotation.isRotationBlocked = true;
 
         currentGhost = Instantiate(anthillPrefab);
         SetTransparent(currentGhost, 0.5f);
@@ -83,7 +87,7 @@ public class AntHillPlacement : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Began) 
             {
-                if (EventSystem.current.IsPointerOverGameObject()) return;
+                if (EventSystem.current.IsPointerOverGameObject(touch.fingerId)) return;
                 isDragging = true;
                 if (!hasRotated)
                 {
@@ -166,6 +170,7 @@ public class AntHillPlacement : MonoBehaviour
         applyButton.SetActive(false);
         cancelButton.SetActive(false);
         antMovement.SetPlacementMode(false);
+        cameraRotation.isRotationBlocked = false;
         hasRotated = false;
     }
 
@@ -175,18 +180,33 @@ public class AntHillPlacement : MonoBehaviour
         {
             foreach (var mat in renderer.materials)
             {
-                Color color = mat.color;
-                color.a = alpha;
-                mat.color = color;
+                if (mat.HasProperty("_Color"))
+                {
+                    Color color = mat.color;
+                    color.a = alpha;
+                    mat.color = color;
+                }
 
-                mat.SetFloat("_Mode", alpha < 1f ? 2f : 0f);
-                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                mat.SetInt("_ZWrite", alpha < 1f ? 0 : 1);
-                mat.DisableKeyword("_ALPHATEST_ON");
-                mat.EnableKeyword("_ALPHABLEND_ON");
-                mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                mat.renderQueue = alpha < 1f ? 3000 : -1;
+                if (alpha < 1f)
+                {
+                    mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                    mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    mat.SetInt("_ZWrite", 0);
+                    mat.DisableKeyword("_ALPHATEST_ON");
+                    mat.EnableKeyword("_ALPHABLEND_ON");
+                    mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                    mat.renderQueue = 3000;
+                }
+                else
+                {
+                    mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                    mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                    mat.SetInt("_ZWrite", 1);
+                    mat.DisableKeyword("_ALPHATEST_ON");
+                    mat.DisableKeyword("_ALPHABLEND_ON");
+                    mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                    mat.renderQueue = -1;
+                }
             }
         }
     }

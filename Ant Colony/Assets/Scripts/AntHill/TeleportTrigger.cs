@@ -130,7 +130,25 @@ public class TeleportTrigger : MonoBehaviour
             var returnTrigger = lowerTrigger.GetComponent<ReturnTeleportTrigger>();
             if (returnTrigger != null)
             {
-                returnTrigger.SetReturnPoint(surfacePos);
+                returnTrigger.Initialize(
+                    surfacePos,
+                    cameraZoomController,
+                    cameraZoneCleaning,
+                    diggingManager
+                );
+            }
+            foreach (Button btn in Resources.FindObjectsOfTypeAll<Button>())
+            {
+                if (btn.name == "Climb_Up_Button")
+                {
+                    returnButton = btn;
+                    returnButton.onClick.RemoveAllListeners();
+                    returnButton.onClick.AddListener(() =>
+                    {
+                        if (ReturnTeleportTrigger.ActiveInstance != null)
+                            ReturnTeleportTrigger.ActiveInstance.OnReturnButtonClicked();
+                    });
+                }
             }
         }
     }
@@ -159,9 +177,10 @@ public class TeleportTrigger : MonoBehaviour
                 returnButton.gameObject.SetActive(true);
             }
             else if (btn.name == "Digging_Button")
-            {
                 btn.gameObject.SetActive(true);
-            }
+
+            else if (btn.name == "Go_To_AntHill_Button")
+                btn.gameObject.SetActive(false);
         }
     }
 
