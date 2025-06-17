@@ -7,13 +7,13 @@ public class CameraRotation : MonoBehaviour
 {
     public CinemachineFreeLook freeLookCamera;
     public float rotationSpeed = 5f;
-    public bool isRotationBlocked = false; // Добавлено
+    public bool isRotationBlocked = false;
 
     private Vector2 lastTouchPosition;
 
     void Update()
     {
-        if (isRotationBlocked) return; // Блокируем поворот
+        if (isRotationBlocked) return;
 
         if (Input.touchCount == 1)
         {

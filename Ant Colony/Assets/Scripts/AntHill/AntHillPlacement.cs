@@ -114,22 +114,19 @@ public class AntHillPlacement : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(screenPosition);
 
-        // Сначала проверим, не попали ли по запрещённым слоям
         if (Physics.Raycast(ray, out RaycastHit blockHit, Mathf.Infinity, blockPlacementMask))
         {
-            // Если запрещённый слой ближе, чем разрешённый — выходим
             if (Physics.Raycast(ray, out RaycastHit allowedHit, Mathf.Infinity, placementLayerMask))
             {
                 if (blockHit.distance < allowedHit.distance)
-                    return; // Заблокирован — не двигаем
+                    return;
             }
             else
             {
-                return; // Попали только в запрещённый слой — блокируем
+                return;
             }
         }
 
-        // Теперь размещаем по разрешённым слоям
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, placementLayerMask))
         {
             currentGhost.transform.position = hit.point;
@@ -216,7 +213,6 @@ public class AntHillPlacement : MonoBehaviour
         if (obj.GetComponent<Collider>() == null)
             obj.AddComponent<MeshCollider>();
 
-        // Добавляем коллайдер к TeleportZone
         Transform teleportZone = obj.transform.Find("TeleportZone");
         if (teleportZone != null)
         {
@@ -234,7 +230,6 @@ public class AntHillPlacement : MonoBehaviour
             Debug.LogWarning("TeleportZone не найден, чтобы добавить коллайдер.");
         }
 
-        // Запекаем карту с новым префабом
         GameObject navMeshObj = GameObject.Find("NavMesh");
         if (navMeshObj != null)
         {

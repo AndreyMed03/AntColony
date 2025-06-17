@@ -19,7 +19,6 @@ public class AntMovement : MonoBehaviour
         mainCamera = Camera.main;
         agent = GetComponent<NavMeshAgent>();
 
-        // Игнорируем слой Transparent Piece
         int transparentLayer = LayerMask.NameToLayer("Transparent Piece");
         ignoreLayerMask = ~(1 << transparentLayer);
 

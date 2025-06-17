@@ -18,7 +18,6 @@ public class DiggingManager : MonoBehaviour
         antMovement = FindObjectOfType<AntMovement>();
         navMeshBaker = FindObjectOfType<NavMeshBaker>();
         
-        // Игнорируем слой Transparent Piece
         int transparentLayer = LayerMask.NameToLayer("Transparent Piece");
         ignoreLayerMask = ~(1 << transparentLayer);
 
